@@ -1,0 +1,116 @@
+---
+title: "Untitled"
+author: "BAMIYONG ABESSOLO Dorène"
+date: "2024-10-31"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Analyse Univariée
+```{r}
+
+library(tidyverse)
+
+data = read.csv("data_abs.csv")
+
+#Statistique descriptives
+summary(data)
+
+# Histogrammes pour certaines variables
+hist(data$Salairemoy, main="Distribution du Salaire Moyen", xlab="Salaire moyen", col="lightblue")
+hist(data$txabs, main="Distribution du Taux d'Absentéisme", xlab="Taux d'absentéisme", col="lightgreen")
+
+# Boxplot pour la variable taux de chomage
+boxplot(data$txcho, main="Boxplot du Taux de Chômage", ylab="Taux de Chômage")
+
+```
+# Interprétation 
+La moyenne du salaire est 12,5. Cela indique que, dans l'ensemble, les personnes dans les différents départements gagnent en moyenne 12.5 unités monétaires.
+
+
+les extrémitées  montrent des valeurs extrêmes, cela révèle que certains départements sont très affectés par le chômage comparé à d'autres.
+#Analyse bivariée
+
+```{r}
+
+# Corrélation entre deux variables
+cor(data$Salairemoy, data$txabs)
+
+# Graphique de dispersion relation entre salairemoy et txabs
+plot(data$Salairemoy, data$txabs, main="Salaire moyen vs Taux d'Absentéisme", xlab="Salaire moyen", ylab="Taux d'absentéisme", col="blue", pch=16)
+
+# régression
+abline(lm(txabs ~ Salairemoy, data=data), col="red")
+
+# Corrélation matricielle variable numérique
+cor_matrix = cor(data[,sapply(data, is.numeric)])
+print(cor_matrix)
+
+# Visualisation de la matrice de corrélation (optionnelle)
+library(corrplot)
+corrplot(cor_matrix, method="circle")
+
+```
+#interprétation 
+
+la corrélation entre le salaire moyen et le taux d'absentéisme est mégative et faible, cela ne nous permet pas de déterminer si réellement si le salaire moyen moins élevé permet de diminuer le taux d'absenteisme 
+
+#Réduction de dimension avec ACP
+
+```{r}
+library(FactoMineR)
+library(factoextra)
+
+#  retrait des colonnes non numériques
+data_numerique =data[, c("HLM", "Salairemoy", "Ouvrier", "Employe", "PI", "Cadres", "Artisant", "Agri", "TxPauv", "NonDiplome", "txcho", "txabs")]
+
+#ACP sur les variables numériques
+res.pca <- PCA(data_numerique, scale.unit = TRUE, ncp = 5, graph = TRUE)
+
+#contribution des variables aux composantes principales
+fviz_pca_var(res.pca, col.var = "contrib", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"))
+
+# Obtenir les contributions des variables à chaque composante principale
+print(res.pca$var$contrib)
+
+
+
+```
+
+#interprétation
+A la vu des contributions, on peut voir que les variables les plus significative en dim 1 et deux sont le tx chomage et le tx de pauvreté.
+Pour faire simple la dimension 1 a été choisi car elle explique une part significative de la variance (42.23%)
+
+#une régression multiple pour modéliser la relation entre le taux d'abstention et les autres variables socio-économiques.
+
+```{r} 
+
+library(car)
+
+#régression multiple
+modele <- lm(txabs ~ Salairemoy + HLM + Ouvrier + Employe + PI + Cadres + Artisant + Agri + TxPauv + NonDiplome + txcho, data = data)
+
+# Résumé du modèle pour voir les coefficients et les statistiques
+summary(modele)
+
+# teste de la colinéarité avec le facteur d'inflation de la variance
+vif(modele)
+
+
+```
+#interpretation
+reg multiple-summary: p-value significative pour les variables tx de pauvreté et tx de chomage.La P value du nondiplome se raproche aussi de la valeur significative.
+Ce qui signifie que plus les tx de pauvreté et de chomage sont élevés, plus il y a augmentation du tx d'absentéisme.
+
+
+VIF (entre 5 et 10): On peut remarqué une colinearité avec le tx de pauvreté, et la part des non ou peu diplômés.
+
+```{r}
+
+
+
+```
+
