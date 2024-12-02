@@ -7,7 +7,7 @@ output: html_document
 Ce document présente une analyse exploratoire des données de l'enquête sur la participation électorale de 2017 par département (96 départements). Les données 2014 et 2015 sont diffusées selon la géographie en vigueur au 1er janvier 2016.
 
 
-## Description des variables
+# Description des variables
 - Department : nom du département
 - Code : numéro du département
 - HLM : pourcentage du nombre de locataires HLM
@@ -21,103 +21,149 @@ Ce document présente une analyse exploratoire des données de l'enquête sur la
 - TxPauv : taux de pauvreté en 2014
 - NonDiplome : pourcentage de personnes non scolarisées de 15 ans ou des non ou peu diplômés
 - txcho : taux de chomâge au 2ème trimestre 2017
-- txabs : Taux d'abstention aux éléctions présidentielles de 2017
+- txabs : taux d'abstention aux éléctions présidentielles de 2017
 
 
-## Plan de travail
-1. Chargement et préparation des données : Vérification des valeurs manquantes et nettoyage des données.
-2. Visualisation des données : Analyse univariée et bivariée.
+# Plan de travail
+1. Chargement et préparation des données : Vérification des valeurs manquantes et nettoyage des données
+2. Visualisation des données : Analyse univariée et bivariée
 3. Interprétation des résultats 
 
-### 1. Chargement et préparation des données
+## 1. Chargement et préparation des données
 
 Nous commençons par charger les données pour explorer leur structure et leur contenu.
 
-
 ```{r}
-data <- read.csv("data/data_abs.csv", header = TRUE, sep = ",")
-data
-```
-Nous avons 15 colonnes et 96 observations (qui correspond au 96 départements).
 
-```{r}
-str(data)
-```
-Nos colonnes sont du bon type.
+library(dplyr)
+library(ggplot2)     
+library(factoextra)   
+library(compositions)
+library(corrplot)  
+library(FactoMineR) 
 
-```{r}
-summary(data)
 ```
 
+
 ```{r}
-colSums(is.na(data)) 
+df <- read.csv("data/data_abs.csv", header = TRUE, sep = ",")
+df
 ```
-Il n'y a pas de valeurs manquantes dans le dataset.
-
-
-### 2. Analyse exploratoire
-
-## Analyse univariée
+Nous avons 15 colonnes et 96 observations (cela correspond au 96 départements).
 
 ```{r}
-library(ggplot2)
+str(df)
+```
+Nos colonnes sont du bon type. On peut voir que nous avons principalement des données numériques.
 
-ggplot(data, aes(x = Salairemoy)) + 
+
+
+```{r}
+colSums(is.na(df)) 
+```
+Nous n'avons pas de valeurs manquantes dans le dataset.
+
+
+## 2. Analyse exploratoire
+
+### Analyse univariée
+```{r}
+# Statistiques descriptives
+summary(df)
+```
+
+```{r}
+
+ggplot(df, aes(x = Salairemoy)) + 
   geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
   labs(title = "Distribution du Salaire horaire Net moyen", x = "Salaire horaire Net Moyen (€)", y = "Fréquence")
 
-ggplot(data, aes(x = TxPauv)) + 
+ggplot(df, aes(x = TxPauv)) + 
   geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
   labs(title = "Distribution du Taux de Pauvreté", x = "Taux de pauvreté (%)", y = "Fréquence")
 
-ggplot(data, aes(x = NonDiplome)) + 
+ggplot(df, aes(x = NonDiplome)) + 
   geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
   labs(title = "Distribution de la Part des Non ou Peu Diplômés", x = "Part des Non ou Peu Diplômés (%)", y = "Fréquence")
 
-ggplot(data, aes(x = txcho)) +
+ggplot(df, aes(x = txcho)) +
   geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
   labs(title = "Distribution du Taux de chômage au 2ème trimestre 2017", x = "Taux de chômage (%)", y = "Fréquence")
 
-ggplot(data, aes(x = txabs)) +
+ggplot(df, aes(x = txabs)) +
   geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
   labs(title = "Distribution du Taux d'abstention aux élections présidentielles de 2017", x = "Taux d'abstention (%)", y = "Fréquence")
 
 ```
 ```{r}
-
-library(ggplot2)
-
-ggplot(data, aes(x = Ouvrier)) + 
+ggplot(df, aes(x = Ouvrier)) + 
   geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
   labs(title = "Distribution de la Part des Ouvriers", x = "Part des Ouvriers (%)", y = "Fréquence")
-ggplot(data, aes(x = Employe)) + 
+ggplot(df, aes(x = Employe)) + 
   geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
   labs(title = "Distribution de la Part des Employés", x = "Part des Employés (%)", y = "Fréquence")
-ggplot(data, aes(x = PI)) + 
+ggplot(df, aes(x = PI)) + 
   geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
   labs(title = "Distribution de la Part des Professions Intermédiaires", x = "Part des Professions Intermédiaires (%)", y = "Fréquence")
-ggplot(data, aes(x = Cadres)) + 
+ggplot(df, aes(x = Cadres)) + 
   geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
   labs(title = "Distribution de la Part des Cadres", x = "Part des Cadres (%)", y = "Fréquence")
-ggplot(data, aes(x = Artisant)) + 
+ggplot(df, aes(x = Artisant)) + 
   geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
   labs(title = "Distribution de la Part des Artisans", x = "Part des Artisans (%)", y = "Fréquence")
-ggplot(data, aes(x = Agri)) + 
+ggplot(df, aes(x = Agri)) + 
   geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
   labs(title = "Distribution de la Part des Agriculteurs", x = "Part des Agriculteurs (%)", y = "Fréquence")
 ```
 
 ### Analyse multivariée 
 ```{r}
-cor(data[, sapply(data, is.numeric)], use = "complete.obs")
+if(!require(corrplot)) install.packages("corrplot")
+cor_matrix <- stats::cor(df[, sapply(df, is.numeric)], use = "complete.obs")
+corrplot(cor_matrix, method = "color", type = "upper", tl.col = "black", tl.srt = 45,
+         col = colorRampPalette(c("red", "white", "blue"))(200), 
+         title = "Matrice de Corrélation", mar = c(0, 0, 1, 0))
+
+
+
+```
+```{r}
+ggplot(df, aes(x = Salairemoy, y = txabs)) + 
+  geom_point() + 
+  theme_minimal() +
+  labs(title = "Salaire moyen vs Taux d'abstention")
 ```
 
 
 ```{r}
-ggplot(data, aes(x = TxPauv, y = txabs)) +
-  geom_point() +
-  geom_smooth(method = "lm", color = "red") +
-  labs(title = "Relation entre le taux de pauvreté et le taux d'abstention", x = "Taux de pauvreté", y = "Taux d'abstention")
-BBBBN        
+
+data_numeric <- df[, sapply(df, is.numeric)]
+
+compositionnal_vars <- c("HLM", "Ouvrier", "Employe", "Cadres", "Artisant", "Agri")
+data_clr <- clr(data_numeric[, compositionnal_vars])
+
+other_vars <- data_numeric[, !colnames(data_numeric) %in% compositionnal_vars]
+
+data_combined <- cbind(as.data.frame(data_clr), other_vars)
+
+result_acp_combined <- PCA(data_combined, scale.unit = TRUE, ncp = 5, graph = FALSE)
+
+fviz_screeplot(result_acp_combined)       
+fviz_pca_var(result_acp_combined)          
+fviz_pca_ind(result_acp_combined)         
+
+
+
+```
+```{r}
+data_acp <- scale(data_numeric)     
+result_acp <- PCA(as.data.frame(data_acp), scale.unit = TRUE, ncp = 5, graph = FALSE)
+
+fviz_screeplot(result_acp)
+fviz_pca_var(result_acp)
+fviz_pca_ind(result_acp)
+
+
+
 ```
 
