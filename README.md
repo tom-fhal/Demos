@@ -23,8 +23,6 @@ hist(data$txabs, main="Distribution du Taux d'Absentéisme", xlab="Taux d'absent
 boxplot(data$txcho, main="Boxplot du Taux de Chômage", ylab="Taux de Chômage")
 
 ```
-# Interprétation 
-La moyenne du salaire est 12,5. Cela indique que, dans l'ensemble, les personnes dans les différents départements gagnent en moyenne 12.5 unités monétaires.
 
 
 les extrémitées  montrent des valeurs extrêmes, cela révèle que certains départements sont très affectés par le chômage comparé à d'autres.
