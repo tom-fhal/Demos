@@ -24,9 +24,7 @@ boxplot(data$txcho, main="Boxplot du Taux de Chômage", ylab="Taux de Chômage")
 
 ```
 
-
-les extrémitées  montrent des valeurs extrêmes, cela révèle que certains départements sont très affectés par le chômage comparé à d'autres.
-#Analyse bivariée
+# Analyse bivariée
 
 ```{r}
 
