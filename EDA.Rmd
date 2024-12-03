@@ -3,11 +3,18 @@ title: "Analyse exploratoire des données de l'enquête sur la participation él
 output: html_document
 ---
 
-# Introduction
+# Plan de travail
+1. Introduction 
+2. Chargement et préparation des données
+3. Analyse exploratoire : Analyse univariée, bivariée, réduction de dimension 
+4. Application d'un modèle de régression
+5. Application d'un modèle de classification (clustering)
+6. Conclusion, synthèse de l'analyse
+
+## 1. Introduction
 Ce document présente une analyse exploratoire des données de l'enquête sur la participation électorale de 2017 par département (96 départements). Les données 2014 et 2015 sont diffusées selon la géographie en vigueur au 1er janvier 2016.
 
-
-# Description des variables
+### Description des variables
 - Department : nom du département
 - Code : numéro du département
 - HLM : pourcentage du nombre de locataires HLM
@@ -24,26 +31,17 @@ Ce document présente une analyse exploratoire des données de l'enquête sur la
 - txabs : taux d'abstention aux éléctions présidentielles de 2017
 
 
-# Plan de travail
-1. Chargement et préparation des données : Vérification des valeurs manquantes et nettoyage des données
-2. Visualisation des données : Analyse univariée et bivariée
-3. Interprétation des résultats 
-
-## 1. Chargement et préparation des données
-
-Nous commençons par charger les données pour explorer leur structure et leur contenu.
+## 2. Chargement et préparation des données
 
 ```{r}
-
 library(dplyr)
 library(ggplot2)     
 library(factoextra)   
 library(compositions)
 library(corrplot)  
 library(FactoMineR) 
-
 ```
-
+Nous commençons par charger les données pour explorer leur structure et leur contenu.
 
 ```{r}
 df <- read.csv("data/data_abs.csv", header = TRUE, sep = ",")
@@ -56,114 +54,125 @@ str(df)
 ```
 Nos colonnes sont du bon type. On peut voir que nous avons principalement des données numériques.
 
-
-
 ```{r}
 colSums(is.na(df)) 
 ```
 Nous n'avons pas de valeurs manquantes dans le dataset.
 
 
-## 2. Analyse exploratoire
+## 3. Analyse exploratoire
 
 ### Analyse univariée
+
+#### Statistiques descriptives
 ```{r}
-# Statistiques descriptives
 summary(df)
 ```
-
+#### Boîtes à moustaches des variables numériques
 ```{r}
-
-ggplot(df, aes(x = Salairemoy)) + 
-  geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
-  labs(title = "Distribution du Salaire horaire Net moyen", x = "Salaire horaire Net Moyen (€)", y = "Fréquence")
-
-ggplot(df, aes(x = TxPauv)) + 
-  geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
-  labs(title = "Distribution du Taux de Pauvreté", x = "Taux de pauvreté (%)", y = "Fréquence")
-
-ggplot(df, aes(x = NonDiplome)) + 
-  geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
-  labs(title = "Distribution de la Part des Non ou Peu Diplômés", x = "Part des Non ou Peu Diplômés (%)", y = "Fréquence")
-
-ggplot(df, aes(x = txcho)) +
-  geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
-  labs(title = "Distribution du Taux de chômage au 2ème trimestre 2017", x = "Taux de chômage (%)", y = "Fréquence")
-
-ggplot(df, aes(x = txabs)) +
-  geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
-  labs(title = "Distribution du Taux d'abstention aux élections présidentielles de 2017", x = "Taux d'abstention (%)", y = "Fréquence")
-
-```
-```{r}
-ggplot(df, aes(x = Ouvrier)) + 
-  geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
-  labs(title = "Distribution de la Part des Ouvriers", x = "Part des Ouvriers (%)", y = "Fréquence")
-ggplot(df, aes(x = Employe)) + 
-  geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
-  labs(title = "Distribution de la Part des Employés", x = "Part des Employés (%)", y = "Fréquence")
-ggplot(df, aes(x = PI)) + 
-  geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
-  labs(title = "Distribution de la Part des Professions Intermédiaires", x = "Part des Professions Intermédiaires (%)", y = "Fréquence")
-ggplot(df, aes(x = Cadres)) + 
-  geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
-  labs(title = "Distribution de la Part des Cadres", x = "Part des Cadres (%)", y = "Fréquence")
-ggplot(df, aes(x = Artisant)) + 
-  geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
-  labs(title = "Distribution de la Part des Artisans", x = "Part des Artisans (%)", y = "Fréquence")
-ggplot(df, aes(x = Agri)) + 
-  geom_histogram(bins = 30, fill = "cornflowerblue", color = "black") +
-  labs(title = "Distribution de la Part des Agriculteurs", x = "Part des Agriculteurs (%)", y = "Fréquence")
+numeric_vars <- c("HLM", "Salairemoy", "Ouvrier", "Employe", "PI", 
+                  "Cadres", "Artisant", "Agri", "TxPauv", "NonDiplome", "txcho", "txabs")
+df_numeric <- df[, numeric_vars]
+df_long <- stack(df_numeric)
+boxplot(values ~ ind, data = df_long, 
+        main = "Boîtes à moustaches des variables numériques", 
+        xlab = "", ylab = "Valeurs", las = 2, col = "lightblue",
+        outline = TRUE) 
+mtext("Variables", side = 1, line = 4) 
 ```
 
-### Analyse multivariée 
+#### Histogrammes des variables continues
 ```{r}
+library(ggplot2)     
+ggplot(df_long, aes(x = values)) +
+  geom_histogram(bins = 30, fill = "blue", alpha = 0.7) +
+  facet_wrap(~ind, scales = "free") +
+  theme_minimal() +
+  labs(title = "Distributions des variables continues", y = "Fréquence") +
+  theme(axis.title.x = element_blank()) + 
+  theme(strip.text = element_text(size = 12)) 
+```
+
+### Analyse bivariée
+
+#### Corrélation des variables numériques
+```{r}
+library(corrplot)  
+
 if(!require(corrplot)) install.packages("corrplot")
-cor_matrix <- stats::cor(df[, sapply(df, is.numeric)], use = "complete.obs")
+cor_matrix <- stats::cor(df_numeric, use = "complete.obs")
 corrplot(cor_matrix, method = "color", type = "upper", tl.col = "black", tl.srt = 45,
          col = colorRampPalette(c("red", "white", "blue"))(200), 
          title = "Matrice de Corrélation", mar = c(0, 0, 1, 0))
-
-
-
 ```
+#### Relation entre le taux d'abstention et d'autres variables
+
 ```{r}
 ggplot(df, aes(x = Salairemoy, y = txabs)) + 
   geom_point() + 
   theme_minimal() +
   labs(title = "Salaire moyen vs Taux d'abstention")
 ```
-
+```{r}
+ggplot(df, aes(x = txcho, y = txabs)) + 
+  geom_point() + 
+  theme_minimal() +
+  labs(title = "Taux de chômage vs Taux d'abstention")
+```
 
 ```{r}
+ggplot(df, aes(x = TxPauv, y = txabs)) + 
+  geom_point() + 
+  theme_minimal() +
+  labs(title = "Taux de pauvreté vs Taux d'abstention")
+```
+```{r}
+ggplot(df, aes(x = HLM, y = txabs)) + 
+  geom_point() + 
+  theme_minimal() +
+  labs(title = "HLM vs Taux d'abstention")
+```
+Combien avons-nous de variables descriptives ? Lesquelles parmi elles
+sont-elles des données compositionnelles ? Comment allons nous les traiter ? 
 
-data_numeric <- df[, sapply(df, is.numeric)]
+### Réduction de dimension (ACP)
+
+```{r}
+library(compositions)
+library(FactoMineR)
+library(factoextra)
 
 compositionnal_vars <- c("HLM", "Ouvrier", "Employe", "Cadres", "Artisant", "Agri")
-data_clr <- clr(data_numeric[, compositionnal_vars])
 
-other_vars <- data_numeric[, !colnames(data_numeric) %in% compositionnal_vars]
+data_clr <- clr(df_numeric[, compositionnal_vars])
+
+other_vars <- df_numeric[, !colnames(df_numeric) %in% compositionnal_vars]
+
 
 data_combined <- cbind(as.data.frame(data_clr), other_vars)
 
+
 result_acp_combined <- PCA(data_combined, scale.unit = TRUE, ncp = 5, graph = FALSE)
 
-fviz_screeplot(result_acp_combined)       
-fviz_pca_var(result_acp_combined)          
-fviz_pca_ind(result_acp_combined)         
-
-
-
+fviz_screeplot(result_acp_combined)         
+fviz_pca_var(result_acp_combined)        
+fviz_pca_ind(result_acp_combined)           
 ```
+
 ```{r}
-data_acp <- scale(data_numeric)     
+data_acp <- scale(df_numeric)     
 result_acp <- PCA(as.data.frame(data_acp), scale.unit = TRUE, ncp = 5, graph = FALSE)
 
 fviz_screeplot(result_acp)
 fviz_pca_var(result_acp)
 fviz_pca_ind(result_acp)
-
-
-
 ```
+## 4. Application d'un modèle de régression
+Nous allons appliquer une régression pour modéliser la relation entre le taux d'abstention et les autres variables socio-économiques.
+
+## 5. Application d'un modèle de classification (clustering)
+Nous allons appliquer une méthode de classification (clusterinf) afin de regrouper les départements en fonction de leurs caractéristiques socio-économiques et leur taux d'abstention. 
+
+
+## 6 Conclusion, synthèse de l'analyse
 
