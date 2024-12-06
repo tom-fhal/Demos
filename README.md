@@ -1,4 +1,4 @@
-#INTRODUCTION
+# INTRODUCTION
 
 L’objectif de ce projet est d’explorer et d’analyser la relation entre les caractéristiques socio-économiques des départements français et leur taux d'absentéisme à travers des méthodes d’analyse statistiques et de machine learning. Le taux d'absentéisme, souvent considéré comme un indicateur de diverses tensions sociales ou économiques, peut être influencé par des facteurs tels que le revenu moyen, le taux de chômage, le niveau de diplôme, et la composition socioprofessionnelle.
 
