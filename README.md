@@ -54,7 +54,7 @@ corrplot(cor_matrix, method="circle")
 
 la corrélation entre le salaire moyen et le taux d'absentéisme est négative et faible, cela ne nous permet pas de déterminer si réellement si le salaire moyen moins élevé permet de diminuer le taux d'absenteisme 
 
-#Réduction de dimension avec ACP
+# Réduction de dimension avec ACP
 
 ```{r}
 library(FactoMineR)
@@ -148,9 +148,9 @@ data$cluster = kmeans_result$cluster
 
 
 ```
-#Intrprétatio
+#Intrprétation
 Les clusters obtenus ont été interprétés selon les variables socio-économiques dominantes. Chaque cluster représente un profil distinct de départements : certains sont marqués par un haut taux de pauvreté et de chômage, tandis que d'autres présentent un haut salaire moyen et un faible taux d'absentéisme.
 
-#CONCLUSION
+# CONCLUSION
 
 L’analyse a révélé que certaines variables, comme le taux de chômage, le salaire moyen et le niveau d’éducation (NonDiplôme), ont un effet significatif sur le taux d’absentéisme. Les départements présentant des conditions économiques plus précaires tendent à avoir des taux d'absentéisme plus élevés.
