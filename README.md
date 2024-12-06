@@ -23,12 +23,8 @@ hist(data$txabs, main="Distribution du Taux d'Absentéisme", xlab="Taux d'absent
 boxplot(data$txcho, main="Boxplot du Taux de Chômage", ylab="Taux de Chômage")
 
 ```
-# Interprétation 
-La moyenne du salaire est 12,5. Cela indique que, dans l'ensemble, les personnes dans les différents départements gagnent en moyenne 12.5 unités monétaires.
 
-
-les extrémitées  montrent des valeurs extrêmes, cela révèle que certains départements sont très affectés par le chômage comparé à d'autres.
-#Analyse bivariée
+# Analyse bivariée
 
 ```{r}
 
@@ -50,11 +46,14 @@ library(corrplot)
 corrplot(cor_matrix, method="circle")
 
 ```
-#interprétation 
+#  Analyse univariée et bivariée des données
 
-la corrélation entre le salaire moyen et le taux d'absentéisme est négative et faible, cela ne nous permet pas de déterminer si réellement si le salaire moyen moins élevé permet de diminuer le taux d'absenteisme 
+Nous avons d’abord effectué une analyse descriptive des différentes variables socio-économiques, telles que le taux de chômage, le salaire moyen, et le pourcentage de personnes sans diplôme. Cela a permis de comprendre les distributions et corrélations entre ces variables et le taux d’absentéisme.
 
-# Réduction de dimension avec ACP
+
+
+# Réduction de dimension et sélection de variables
+
 
 ```{r}
 library(FactoMineR)
@@ -76,11 +75,9 @@ print(res.pca$var$contrib)
 
 ```
 
-#interprétation
-A la vu des contributions, on peut voir que les variables les plus significative en dim 1 et deux sont le tx chomage et le tx de pauvreté.
-Pour faire simple la dimension 1 a été choisi car elle explique une part significative de la variance (42.23%)
+Pour optimiser la sélection des variables les plus pertinentes, nous avons utilisé des techniques de réduction de dimension telles que l'Analyse en Composantes Principales (ACP) et des méthodes basées sur des algorithmes comme le Random Forest. Ces techniques nous ont permis de réduire le nombre de variables tout en conservant celles qui expliquaient le mieux la variabilité du taux d'absentéisme.
 
-#une régression multiple pour modéliser la relation entre le taux d'abstention et les autres variables socio-économiques.
+# Une régression multiple pour modéliser la relation entre le taux d'abstention et les autres variables socio-économiques.
 
 ```{r} 
 
@@ -97,15 +94,11 @@ vif(modele)
 
 
 ```
-#interpretation
 
-reg multiple-summary: p-value significative pour les variables tx de pauvreté et tx de chomage.La P value du nondiplome se raproche aussi de la valeur significative.
-Ce qui signifie que plus les tx de pauvreté et de chomage sont élevés, plus il y a augmentation du tx d'absentéisme.
+Nous avons ensuite appliqué un modèle de régression linéaire multiple pour modéliser la relation entre le taux d'absentéisme et les autres variables. Ce modèle nous a permis d’identifier les facteurs significatifs qui influencent le taux d'absentéisme. L’évaluation du modèle a été réalisée à travers le coefficient de détermination (R²) et les valeurs p associées à chaque variable.
 
 
-VIF (entre 5 et 10): On peut remarqué une colinearité avec le tx de pauvreté, et la part des non ou peu diplômés.
-
-#Cluster
+# Clustering et classification des départements
 
 ```{r}
 library(factoextra)
@@ -148,9 +141,11 @@ data$cluster = kmeans_result$cluster
 
 
 ```
-#Intrprétation
-Les clusters obtenus ont été interprétés selon les variables socio-économiques dominantes. Chaque cluster représente un profil distinct de départements : certains sont marqués par un haut taux de pauvreté et de chômage, tandis que d'autres présentent un haut salaire moyen et un faible taux d'absentéisme.
+
+
+Nous avons appliqué des méthodes de clustering, comme l'algorithme de K-Means et le clustering hiérarchique, pour regrouper les départements en fonction de leurs caractéristiques socio-économiques et de leur taux d’absentéisme. Le nombre optimal de clusters a été déterminé à l'aide de l'indice de silhouette et de la méthode du coude
 
 # CONCLUSION
 
 L’analyse a révélé que certaines variables, comme le taux de chômage, le salaire moyen et le niveau d’éducation (NonDiplôme), ont un effet significatif sur le taux d’absentéisme. Les départements présentant des conditions économiques plus précaires tendent à avoir des taux d'absentéisme plus élevés.
+
